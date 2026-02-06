@@ -29,4 +29,6 @@ public abstract class Piece {
     }
 
     public abstract List<Position> getValidMove(Board board);
+
+    public abstract List<Position> getValidMoves(Board board);
 }
