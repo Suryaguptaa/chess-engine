@@ -1,4 +1,6 @@
 package com.surya.chess.domain.common;
 
-public class Color {
+public enum Color {
+    WHITE,
+    BLACK
 }
