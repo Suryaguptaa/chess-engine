@@ -1,4 +1,8 @@
 package com.surya.chess.domain.game;
 
-public class GameState {
+public enum GameState {
+    ACTIVE,
+    CHECK,
+    CHECKMATE,
+    STALEMATE
 }

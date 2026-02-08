@@ -18,10 +18,19 @@ public class Cell {
         return position;
     }
 
-    public Optional<Piece> getPiece(){
-        return Optional.ofNullable(piece);
+    public Piece getPiece(){
+        return piece;
     }
 
+    public void setPiece(Piece piece) {
+        this.piece = piece;
+    }
+
+    public Cell getCell(Position position) {
+        Cell[][] cells = new Cell[0][];
+        return cells[position.getRow()][position.getCol()];
+    }
+    
     public boolean isEmpty(){
         return piece == null;
     }
@@ -36,12 +45,12 @@ public class Cell {
         this.piece = piece;
     }
 
-    void removePiece(){
-        if(this.piece == null){
-            throw new IllegalStateException(
-                    "Cell " + position + " is already empty"
-            );
-        }
+    public void removePiece(){
+//        if(this.piece == null){
+//            throw new IllegalStateException(
+//                    "Cell " + position + " is already empty"
+//            );
+//        }
         this.piece = null;
     }
 }
