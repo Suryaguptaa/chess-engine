@@ -39,8 +39,8 @@ public final class Position {
     }
 
     @Override
-    public int hashCode(){
-        return Objects.hash(row,col);
+    public int hashCode() {
+        return 31 * row + col;
     }
 
     @Override
