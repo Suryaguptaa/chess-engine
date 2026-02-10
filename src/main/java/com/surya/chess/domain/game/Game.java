@@ -36,7 +36,6 @@ public class Game {
             throw new IllegalStateException("Game is not active");
         }
 
-
         Cell fromCell = board.getCell(move.getFrom());
         Piece piece = fromCell.getPiece();
 
@@ -44,11 +43,9 @@ public class Game {
             throw new IllegalArgumentException("No piece at source position");
         }
 
-
         if (piece.getColor() != currentTurn) {
             throw new IllegalArgumentException("Not " + piece.getColor() + "'s turn");
         }
-
 
         List<Position> validMoves = piece.getValidMoves(board);
 
@@ -56,23 +53,44 @@ public class Game {
             throw new IllegalArgumentException("Invalid move");
         }
 
-
         Cell toCell = board.getCell(move.getTo());
-        Piece targetPiece = toCell.getPiece();
+        Piece capturedPiece = toCell.getPiece();
 
-
-        if (targetPiece != null && targetPiece.getColor() == piece.getColor()) {
+        if (capturedPiece != null && capturedPiece.getColor() == piece.getColor()) {
             throw new IllegalArgumentException("Cannot capture your own piece");
         }
-
 
         fromCell.removePiece();
         toCell.setPiece(piece);
         piece.moveTo(move.getTo());
 
+
+        if (isKingInCheck(currentTurn)) {
+
+            // ROLLBACK
+            toCell.removePiece();
+            fromCell.setPiece(piece);
+            piece.moveTo(move.getFrom());
+
+            if (capturedPiece != null) {
+                toCell.setPiece(capturedPiece);
+            }
+
+            throw new IllegalArgumentException("Move leaves king in check");
+        }
+
         currentTurn =
                 (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
+
+
+        if (isCheckmate(currentTurn)) {
+            gameState = GameState.CHECKMATE;
+            System.out.println("CHECKMATE! " +
+                    (currentTurn == Color.WHITE ? "Black" : "White") + " wins.");
+        }
+
     }
+
 
     private Position findKing(Color color) {
         for (int row = 0; row < 8; row++) {
@@ -115,6 +133,54 @@ public class Game {
         Color opponent = (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
         return isSquareUnderAttack(kingPos, opponent);
     }
+
+    private boolean hasAnyLegalMove(Color color) {
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+
+                Position from = new Position(row, col);
+                Cell fromCell = board.getCell(from);
+
+                if (fromCell.isEmpty()) continue;
+
+                Piece piece = fromCell.getPiece();
+                if (piece.getColor() != color) continue;
+
+                for (Position to : piece.getValidMoves(board)) {
+
+                    Cell toCell = board.getCell(to);
+                    Piece captured = toCell.getPiece();
+
+
+                    fromCell.removePiece();
+                    toCell.setPiece(piece);
+                    piece.moveTo(to);
+
+                    boolean kingStillInCheck = isKingInCheck(color);
+
+
+                    toCell.removePiece();
+                    fromCell.setPiece(piece);
+                    piece.moveTo(from);
+                    if (captured != null) {
+                        toCell.setPiece(captured);
+                    }
+
+                    if (!kingStillInCheck) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isCheckmate(Color color) {
+        return isKingInCheck(color) && !hasAnyLegalMove(color);
+    }
+
+
 
 
 
